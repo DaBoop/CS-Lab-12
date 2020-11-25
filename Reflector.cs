@@ -4,6 +4,7 @@ using System.Text;
 using System.Reflection;
 using System.Linq;
 using System.IO;
+using System.Collections;
 
 namespace Lab12
 {
@@ -35,7 +36,8 @@ namespace Lab12
             
         static public IEnumerable<string> GetMethodsWithParam(Type classType, Type methodType)
         {
-            return classType.GetTypeInfo().DeclaredMethods.Where(x => x.GetParameters().Select(x => x.GetType()).Contains(methodType)).Select(x => x.Name);
+           //debug var x = classType.GetTypeInfo().DeclaredMethods.Select(x => x.GetParameters().Select(y => y.ParameterType).ToArray()).Where(y => y.Contains(methodType)).ToArray();
+            return classType.GetTypeInfo().DeclaredMethods.Where(x => x.GetParameters().Select(y => y.ParameterType).Contains(methodType)).Select(x => x.Name);
         }
 
         //Добавить Invoke
@@ -77,6 +79,16 @@ namespace Lab12
             File.WriteAllText(fileName, rez);
 
             return rez;
+        }
+
+        static public object Create(Type classType, params object[] paramList)
+        {
+            object obj = null;
+
+            obj = Activator.CreateInstance(classType, paramList);
+
+
+            return obj;
         }
     }
 }
