@@ -40,7 +40,54 @@ namespace Lab12
             return classType.GetTypeInfo().DeclaredMethods.Where(x => x.GetParameters().Select(y => y.ParameterType).Contains(methodType)).Select(x => x.Name);
         }
 
-        //Добавить Invoke
+        static public object Invoke(Type classType, string methodName, string filename)
+        {
+            object rez = null;
+            object classObj = Create(classType, new object[]{ });
+            
+           
+            List<string> paramListString = File.ReadAllText(filename).Split('\n').ToList();
+
+
+            MethodInfo methodInst = classType.GetMethod(methodName);
+
+            var temp = methodInst.GetParameters();
+            List<Type> paramListType = methodInst.GetParameters().Select(x => x.ParameterType).ToList();
+
+            if (paramListString.Count != paramListType.Count) return null;
+
+            var paramListObj = new List<object>();
+            for (int i = 0; i < paramListType.Count; i++)
+            { 
+                paramListObj.Add(System.Convert.ChangeType(paramListString[i],paramListType[i]));
+            }
+
+            rez = methodInst.Invoke(classObj, paramListObj.ToArray());
+            return rez;
+        }
+
+        static public object Invoke(Type classType, string methodName)
+        {
+            object rez = null;
+            object classObj = Create(classType, new object[] { });
+
+
+
+            MethodInfo methodInst = classType.GetMethod(methodName);
+
+            var temp = methodInst.GetParameters();
+            List<Type> paramListType = methodInst.GetParameters().Select(x => x.ParameterType).ToList();
+
+            var paramListObj = new List<object>();
+            for (int i = 0; i < paramListType.Count; i++)
+            { 
+                paramListObj.Add(Activator.CreateInstance(paramListType[i]));
+            }
+            
+            rez = methodInst.Invoke(classObj, paramListObj.ToArray());
+            return rez;
+
+        }
         static public string toFile(Type classType, Type methodType = null, string fileName = "info.txt")
         {
             string rez = "";
@@ -85,6 +132,7 @@ namespace Lab12
         {
             object obj = null;
 
+            if (classType.IsAbstract) return null;
             obj = Activator.CreateInstance(classType, paramList);
 
 
